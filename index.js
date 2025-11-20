@@ -7,6 +7,8 @@ let title = ''
 let html = ''
 let movieArr = []
 let htmlArr = []
+function noResults() {
+    searchResults.innerHTML = '<div class="no-results" id="no-results">Unable to find what you’re looking for. Please try another search.</div>'}
 
 search.addEventListener("submit", function(e) {
     e.preventDefault()
@@ -17,13 +19,16 @@ search.addEventListener("submit", function(e) {
 // send the search input to the API, create an array with movie IDs.
 // call next function with that array 
 function searchMovie(title) {
+movieArr = []
 fetch (`https://www.omdbapi.com/?s=${title}&apikey=eba64618&type=movie&page=1`)
     .then (res => res.json())
     .then (data => {
-        data.Search.forEach(function(movie){
-                movieArr.push(movie.imdbID)
-        })
-        createMovieContent(movieArr)
+        if (data.Search) {
+            data.Search.forEach(function(movie){
+                    movieArr.push(movie.imdbID)
+            })
+            createMovieContent(movieArr)
+        } else { noResults()}
     })
 }
 
@@ -46,15 +51,18 @@ function createMovieContent(arr) {
                     rating: data.imdbRating,
                     runtime: data.Runtime,
                     genre: data.Genre,
-                    plot: data.Plot
+                    plot: data.Plot,
+                    imdbVotes: data.imdbVotes
                 }
                 htmlArr.push(movieObj)
                 
                 // Increment counter and check if all requests are done
                 completedRequests++
                 if (completedRequests === totalRequests) {
-                    console.log(htmlArr)
+                    
+                    htmlArr.sort((a,b) => Number(b.imdbVotes) - Number(a.imdbVotes))
                     renderHtmlArr(htmlArr)
+                    console.log(htmlArr)
                 }
                 })
             })
@@ -63,27 +71,50 @@ function createMovieContent(arr) {
 // use array to generate the html 
 function renderHtmlArr(arr){
     html = ''
+    if (arr.length>0) {
     arr.forEach(function(movieobj){
         html += `
-        <div class="movie" id=${movieobj.imdbID}>
-            <img src=${movieobj.poster} alt=${movieobj.title} poster/>
-            <div class="movie-details">
-                <div class="movie-details1">
-                    <span class="movie-title">${movieobj.title}</span>
-                    <span class="rating">${movieobj.rating}</span></div>
-                <div class="movie-details2">
-                    <span class="movie-runtime">${movieobj.runtime}</span>
-                    <span class="movie-genre">${movieobj.genre}</span>
-                    <span class="add=watchlist">Add to Watchlist</span>
+            <div class="movie" >
+                <img src=${movieobj.poster} alt=${movieobj.title} poster/>
+                <div class="movie-details">
+                    <div class="movie-details1">
+                        <span class="movie-title">${movieobj.title}</span>
+                        <span class="rating"><img src="/img/star_icon.png"/>${movieobj.rating}</span></div>
+                    <div class="movie-details2" id=${movieobj.imdbID}>
+                        <span class="movie-runtime">${movieobj.runtime}</span>
+                        <span class="movie-genre">${movieobj.genre}</span>
+                        <span class="add-watchlist" id="add-watchlist" data-add=${movieobj.imdbID}><img src="/img/plus_icon.png"/>Watchlist</span>
+                    </div>
+                    <div class="movie-plot">${movieobj.plot}</div>
                 </div>
-                <div class="movie-plot">${movieobj.plot}</div>
             </div>
-        </div>
         `
     })
-console.log(html)
-searchResults.innerHTML = html
+    searchResults.innerHTML = html
+    }  else {
+        noResults()   
+    }
 }
+
+// ADD TO WATCHLIST
+    let watchlist = []
+
+    
+    document.addEventListener('click', function(e){
+      //add condition to only add movies from the watchlist-add
+        console.log(e.target.dataset.add)
+        watchlist.push(e.target.dataset.add)
+        console.log(watchlist)
+})
+
+
+
+
+
+
+
+
+
 
 
 // const testTwo =
@@ -181,3 +212,10 @@ searchResults.innerHTML = html
 // ]
 
 //                 renderHtmlArr(testTwo)
+
+
+
+
+//  fetch ("https://www.omdbapi.com/?i=tt0120338&apikey=eba64618")
+//             .then (res => res.json())
+//             .then (data => console.log(data))
