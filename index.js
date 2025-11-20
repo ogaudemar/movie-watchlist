@@ -52,7 +52,8 @@ function createMovieContent(arr) {
                     runtime: data.Runtime,
                     genre: data.Genre,
                     plot: data.Plot,
-                    imdbVotes: data.imdbVotes
+                    imdbVotes: data.imdbVotes,
+                    saved: false
                 }
                 htmlArr.push(movieObj)
                 
@@ -62,7 +63,7 @@ function createMovieContent(arr) {
                     
                     htmlArr.sort((a,b) => Number(b.imdbVotes) - Number(a.imdbVotes))
                     renderHtmlArr(htmlArr)
-                    console.log(htmlArr)
+                    // console.log(htmlArr)
                 }
                 })
             })
@@ -83,7 +84,7 @@ function renderHtmlArr(arr){
                     <div class="movie-details2" id=${movieobj.imdbID}>
                         <span class="movie-runtime">${movieobj.runtime}</span>
                         <span class="movie-genre">${movieobj.genre}</span>
-                        <span class="add-watchlist" id="add-watchlist" data-add=${movieobj.imdbID}><img src="/img/plus_icon.png"/>Watchlist</span>
+                        <span class="watchlist add" id="wishlist" data-wishlist=${movieobj.imdbID}><span class="add"><img src="/img/plus_icon.png"/></span>Watchlist</span>
                     </div>
                     <div class="movie-plot">${movieobj.plot}</div>
                 </div>
@@ -96,22 +97,77 @@ function renderHtmlArr(arr){
     }
 }
 
-// ADD TO WATCHLIST
-    let watchlist = []
-
+// ADD TO/REMOVE FROM WATCHLIST
+let watchlist = []
     
-    document.addEventListener('click', function(e){
-      //add condition to only add movies from the watchlist-add
-        console.log(e.target.dataset.add)
-        watchlist.push(e.target.dataset.add)
-        console.log(watchlist)
+document.addEventListener('click', function(e){      
+    if(e.target.dataset.wishlist){
+        handleWishlistClick(e.target.dataset.wishlist)
+    }
 })
 
+function handleWishlistClick (movieId) {
+    // console.log(watchlist)
+    //filter the main movie array from the search to only the object with the right ID
+    //and save that into a new object
+    const newMovieObj = htmlArr.filter(movie => movie.imdbID === movieId)[0]
 
+    //retrieve from localStorage the object with 
+    let storedWatchlist = localStorage.getItem('watchlist')
+    console.log(storedWatchlist)
+    if (storedWatchlist) {
+        watchlist = JSON.parse(storedWatchlist)
+    }
+    //modify new object to mark it as saved
+    newMovieObj.saved = !newMovieObj.saved
+    //push that new object onto the watchlist or remove it
+    if (!newMovieObj.saved) {
+        watchlist.push(newMovieObj)
+        } else {
+        //remove movie from object
+        const indexToRemove = watchlist.findIndex (item => item.imdbID === newMovieObj.imdbID)
+        if (indexToRemove !== -1) {
+            watchlist.splice(indexToRemove, 1) 
+            }    
+        }
+    
+     console.log(newMovieObj.saved)
+    //store the object in local storage
+    localStorage.setItem("watchlist", JSON.stringify(watchlist))
+    //change the button to 'remove from watchlist"
+    console.log(watchlist)
+     
+//create function to remove from watchlist (both on result page and on watchlist page)
+        
+}
 
+//When rendering html in search, check if movie is already in the watchlist or not.
+//in object, have an inWatchlist: true/false
 
+//render object in watchlist
 
-
+const watchlistDemo = [
+    {
+        "imdbID": "tt0116282",
+        "title": "Fargo",
+        "poster": "https://m.media-amazon.com/images/M/MV5BNjg4MWE0MjEtODFhNy00MjA5LTg5ODktMzgwNWFmZTAwNjBlXkEyXkFqcGc@._V1_SX300.jpg",
+        "rating": "8.1",
+        "runtime": "98 min",
+        "genre": "Crime, Drama, Thriller",
+        "plot": "Minnesota car salesman Jerry Lundegaard's inept crime falls apart due to his and his henchmen's bungling and the persistent police work of the quite pregnant Marge Gunderson.",
+        "imdbVotes": "75,546"
+    },
+    {
+        "imdbID": "tt0029752",
+        "title": "Wells Fargo",
+        "poster": "https://m.media-amazon.com/images/M/MV5BZjdhOGFhYmYtMTNlOC00NTVhLWFmNWYtZTEyZDBlNzkwNzhiXkEyXkFqcGc@._V1_SX300.jpg",
+        "rating": "6.3",
+        "runtime": "97 min",
+        "genre": "Drama, History, Western",
+        "plot": "The life and career of a Wells Fargo official frames this fictionalized account of the express company's formation.",
+        "imdbVotes": "456"
+    }
+            ]
 
 
 
