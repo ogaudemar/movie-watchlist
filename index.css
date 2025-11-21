@@ -182,3 +182,7 @@ p img{
     color: white;
     height: 75%;
 }
+
+@media (max-width: 800px) {
+    
+}
