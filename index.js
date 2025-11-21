@@ -104,8 +104,8 @@ function renderHtmlArr(arr,someElement){
                             <div class="movie-details2" id=${movieobj.imdbID}>
                                 <span class="movie-runtime">${movieobj.runtime}</span>
                                 <span class="movie-genre">${movieobj.genre}</span>
-                                <span class="watchlist" id="wishlist" data-wishlist=${movieobj.imdbID} data-page=${someElement}>
-                                    ${movieobj.saved ? '-' : '+'} Watchlist
+                                <span class="watchlist" id="wishlist" data-wishlist=${movieobj.imdbID}>
+                                    ${movieobj.saved ? '<img class="watchlist-icon" src="/img/minus_icon.png"/>' : '<img class="watchlist-icon" src="/img/plus_icon.png"/>'} Watchlist
                                 </span>
                             </div>
                             <div class="movie-plot">${movieobj.plot}</div>
